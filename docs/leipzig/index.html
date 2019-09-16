@@ -78,6 +78,22 @@
         var oldLayer = undefined;
         var lastCoordinates = undefined;
 
+        var camDefIcon = L.icon({
+            iconUrl: 'pin_cam6.png',
+
+            iconSize: [35, 48], // size of the icon
+            iconAnchor: [17, 48], // point of the icon which will correspond to marker's location
+            popupAnchor: [17, -3] // point from which the popup should open relative to the iconAnchor
+        });
+
+        var camActIcon = L.icon({
+            iconUrl: 'pin_cam3.png',
+
+            iconSize: [35, 48], // size of the icon
+            iconAnchor: [17, 48], // point of the icon which will correspond to marker's location
+            popupAnchor: [17, -3] // point from which the popup should open relative to the iconAnchor
+        });
+
         var map = L.map('map').setView([51.3399028, 12.3742236], 14)
         L.tileLayer('https://{s}.basemaps.cartocdn.com/rastertiles/voyager/{z}/{x}/{y}{r}.png', {
             attribution: '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors &copy; <a href="https://carto.com/attributions">CARTO</a>',
@@ -98,6 +114,8 @@
             }
         }
 
+
+
         $.ajaxSetup({
             scriptCharset: "utf-8",
             contentType: "application/json; charset=utf-8"
@@ -114,7 +132,22 @@
             dataType: "json",
             success: function(data) {
                 var photoLayer = L.geoJson(data, {
-                    style: style
+                    style: style,
+                    pointToLayer: function(feature, latlng) {
+                        console.log(latlng, feature);
+                        return L.marker(latlng, {
+                            icon: camDefIcon
+                        });
+                    }
+                    /*,
+                                        onEachFeature: function(feature, layer) {
+                                            layer.on("mouseover", function(e) {
+                                                layer.setIcon(camActIcon)
+                                            });
+                                            layer.on("mouseout", function(e) {
+                                                layer.setIcon(camDefIcon)
+                                            });
+                                        }*/
                 });
 
                 var markers = L.markerClusterGroup();
@@ -141,11 +174,11 @@
                 var registerLayerMouseClick = photoLayer.on('click', function(e) {
                     var coordinates = e.layer.feature.geometry.coordinates;
                     if (oldLayer) {
-                        oldLayer.setIcon(blueIcon);
+                        oldLayer.setIcon(camDefIcon);
                     }
                     var layer = e.layer;
                     if (lastCoordinates != coordinates) {
-                        layer.setIcon(redIcon);
+                        layer.setIcon(camActIcon);
                         highlightFeature(e);
                         lastCoordinates = coordinates;
                     } else {
